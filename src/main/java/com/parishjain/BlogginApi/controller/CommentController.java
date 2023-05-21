@@ -1,6 +1,7 @@
 package com.parishjain.BlogginApi.controller;
 
 import com.parishjain.BlogginApi.models.BlogComment;
+import com.parishjain.BlogginApi.models.BlogUser;
 import com.parishjain.BlogginApi.service.AuthenticationService;
 import com.parishjain.BlogginApi.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,4 +36,23 @@ public class CommentController {
         }
         return ResponseEntity.status(status).body(response);
     }
+
+    @DeleteMapping("/delete/{commentId}/{email}/{token}")
+    ResponseEntity<String> deleteComment(@PathVariable Long commentId,
+                                         @PathVariable String email,
+                                         @PathVariable String token){
+        HttpStatus status;
+        String response;
+        if(authenticationService.authenticate(email,token)){
+            BlogUser user =  authenticationService.findUserByToken(token);
+            response = commentService.deleteCommentBtId(user,commentId);
+            status = HttpStatus.OK;
+        }
+        else {
+            status = HttpStatus.FORBIDDEN;
+            response = "Check Token and Email";
+        }
+        return ResponseEntity.status(status).body(response);
+    }
+
 }
